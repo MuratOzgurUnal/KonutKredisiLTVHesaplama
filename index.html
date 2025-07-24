@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konut Kredisi Hesaplama Aracı</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap');
+
+        :root {
+            --primary-blue: #0d63ac;
+            --secondary-blue: #007bff;
+            --light-gray: #f7f7f9;
+            --border-color: #e1e1e6;
+            --text-color-dark: #212529;
+            --text-color-light: #6c757d;
+            --white-color: #ffffff;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --border-radius: 10px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            background-color: var(--light-gray);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-color-dark);
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background-color: var(--white-color);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { color: var(--primary-blue); font-weight: 700; font-size: 2rem; margin-bottom: 10px; }
+        .header p { color: var(--text-color-light); font-size: 1rem; }
+
+        .form-group { margin-bottom: 30px; }
+        .form-group label { display: block; font-weight: 700; margin-bottom: 15px; color: var(--primary-blue); font-size: 1.1rem; }
+
+        .input-group { position: relative; }
+
+        /* GÜNCELLENDİ: Tutar alanı daha belirgin hale getirildi */
+        .input-group input[type="text"] {
+            width: 100%;
+            padding: 16px 20px 16px 45px; /* Dikey padding artırıldı */
+            border: 2px solid var(--border-color); /* Kenarlık kalınlaştırıldı */
+            border-radius: var(--border-radius);
+            font-size: 1.1rem; /* Font boyutu büyütüldü */
+            font-family: 'Nunito Sans', sans-serif;
+            font-weight: 600;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .input-group .currency-symbol {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-color-light);
+            font-weight: 700;
+        }
+        
+        /* GÜNCELLENDİ: Tutar alanına odaklanma efekti güçlendirildi */
+        .input-group input[type="text"]:focus {
+            outline: none;
+            border-color: var(--secondary-blue);
+            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.2); /* Gölge daha belirgin */
+        }
+        
+        .radio-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+
+        .radio-group label {
+            background-color: var(--white-color);
+            padding: 14px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease-in-out; /* Geçiş süresi ayarlandı */
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+        
+        .radio-group input[type="radio"] { display: none; }
+
+        /* GÜNCELLENDİ: Butonların üzerine gelince yukarı kalkma ve gölge efekti */
+        .radio-group label:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+            border-color: var(--primary-blue);
+        }
+        
+        /* GÜNCELLENDİ: Seçili butona derinlik veren gölge efekti */
+        .radio-group input[type="radio"]:checked + label {
+            background-color: var(--primary-blue);
+            color: var(--white-color);
+            border-color: var(--primary-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(13, 99, 172, 0.3);
+        }
+        
+        /* GÜNCELLENDİ: Hesapla butonu tamamen yenilendi */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(45deg, var(--secondary-blue), var(--primary-blue));
+            color: var(--white-color);
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.25);
+            letter-spacing: 0.5px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.35);
+        }
+        
+        #results { margin-top: 30px; padding: 30px; background-color: #f7f7f9; border-radius: var(--border-radius); border: 1px solid var(--border-color); opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; display: none; }
+        #results.visible { display: block; opacity: 1; transform: translateY(0); }
+        #results h2 { color: var(--primary-blue); margin-bottom: 20px; text-align: center; }
+        .result-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border-color); }
+        .result-item:last-child { border-bottom: none; }
+        .result-item .label { font-weight: 600; color: var(--text-color-light); }
+        .result-item .value { font-weight: 700; font-size: 1.1rem; }
+        .value.status-positive { color: var(--success-color); }
+        .value.status-negative { color: var(--danger-color); }
+        #max-loan-amount { color: var(--primary-blue); }
+        
+        .error-message { color: var(--danger-color); font-weight: 600; margin-top: 15px; text-align: center; display: none; }
+
+        @media (max-width: 640px) {
+            .container { padding: 25px; }
+            .header h1 { font-size: 1.7rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- HTML bölümü (form ve sonuçlar) aynı kalıyor, değişiklikler sadece CSS'te yapıldı -->
+        <div class="header">
+            <h1>Konut Kredisi Hesaplama Aracı</h1>
+            <p>Güncel yönetmeliğe göre alabileceğiniz maksimum kredi tutarını öğrenin.</p>
+        </div>
+
+        <form id="loan-calculator-form">
+            <div class="form-group">
+                <label>Bu sizin kaçıncı eviniz olacak?</label>
+                <div class="radio-group">
+                    <input type="radio" id="ownership_first" name="ownership" value="first">
+                    <label for="ownership_first">İlk Evim</label>
+                    <input type="radio" id="ownership_second_plus" name="ownership" value="second_plus">
+                    <label for="ownership_second_plus">İkinci veya Sonraki</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Alınacak Konutun Türü</label>
+                <div class="radio-group">
+                    <input type="radio" id="type_new" name="property_type" value="new">
+                    <label for="type_new">Sıfır Konut (1. El)</label>
+                    <input type="radio" id="type_second_hand" name="property_type" value="second_hand">
+                    <label for="type_second_hand">İkinci El Konut</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="property-value-display">Konutun Değeri</label>
+                <div class="input-group">
+                    <span class="currency-symbol">₺</span>
+                    <input type="text" id="property-value-display" placeholder="Örn: 5.000.000" required>
+                    <input type="hidden" id="property-value-hidden">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Konutun Enerji Sınıfı</label>
+                <div class="radio-group">
+                    <input type="radio" id="energy_a" name="energy_class" value="A">
+                    <label for="energy_a">A Sınıfı</label>
+                    <input type="radio" id="energy_b" name="energy_class" value="B">
+                    <label for="energy_b">B Sınıfı</label>
+                    <input type="radio" id="energy_other" name="energy_class" value="Other">
+                    <label for="energy_other">Diğer</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Kendinize veya eşinize ait bir ev var mı?</label>
+                <div class="radio-group">
+                    <input type="radio" id="has_house_no" name="has_house" value="no">
+                    <label for="has_house_no">Hayır, Yok</label>
+                    <input type="radio"id="has_house_yes" name="has_house" value="yes">
+                    <label for="has_house_yes">Evet, Var</label>
+                </div>
+            </div>
+            <button type="submit" class="submit-btn">Hesapla</button>
+            <p id="error-message" class="error-message"></p>
+        </form>
+
+        <div id="results">
+            <h2>Hesaplama Sonucu</h2>
+            <div class="result-item">
+                <span class="label">Maksimum Kredi Tutarı:</span>
+                <span class="value" id="max-loan-amount"></span>
+            </div>
+            <div class="result-item">
+                <span class="label">Kredi/Değer Oranı (LTV):</span>
+                <span class="value" id="ltv-ratio"></span>
+            </div>
+            <div class="result-item">
+                <span class="label">BSMV Durumu:</span>
+                <span class="value" id="bsmv-status"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript bölümü aynı kalıyor, değişiklikler sadece CSS'te yapıldı
+        const form = document.getElementById('loan-calculator-form');
+        const resultsDiv = document.getElementById('results');
+        const errorMessage = document.getElementById('error-message');
+        const propertyValueDisplay = document.getElementById('property-value-display');
+        const propertyValueHidden = document.getElementById('property-value-hidden');
+
+        propertyValueDisplay.addEventListener('input', (e) => {
+            const rawValue = e.target.value.replace(/\D/g, '');
+            propertyValueHidden.value = rawValue;
+            e.target.value = rawValue ? parseInt(rawValue, 10).toLocaleString('tr-TR') : '';
+        });
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const ownershipChoice = document.querySelector('input[name="ownership"]:checked');
+            const propertyTypeChoice = document.querySelector('input[name="property_type"]:checked');
+            const propertyValue = parseFloat(propertyValueHidden.value);
+            const energyClassChoice = document.querySelector('input[name="energy_class"]:checked');
+            const hasExistingHouseChoice = document.querySelector('input[name="has_house"]:checked');
+
+            resultsDiv.classList.remove('visible');
+            
+            if (!ownershipChoice || !propertyTypeChoice || !energyClassChoice || !hasExistingHouseChoice || isNaN(propertyValue) || propertyValue <= 0) {
+                errorMessage.textContent = 'Lütfen tüm alanları doldurun ve geçerli bir değer girin.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            errorMessage.style.display = 'none';
+
+            const ownership = ownershipChoice.value;
+            const propertyType = propertyTypeChoice.value;
+            const energyClass = energyClassChoice.value;
+            const hasExistingHouse = hasExistingHouseChoice.value === 'yes';
+
+            const maxLoan = calculateMaxLoan(ownership, propertyType, propertyValue, energyClass);
+            const ltv = propertyValue > 0 ? (maxLoan / propertyValue) : 0;
+            const bsmvStatus = hasExistingHouse ? "Var" : "Yok";
+
+            displayResults(maxLoan, ltv, bsmvStatus);
+        });
+        
+        function formatCurrency(amount) { return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount); }
+        function calculateMaxLoan(ownership, propertyType, value, energy) {
+            let percentage = 0, fixedMax = Infinity;
+            if (ownership === 'first') {
+                if (propertyType === 'new') {
+                    if (value <= 5000000) { if (energy === 'A') percentage = 0.90; else if (energy === 'B') percentage = 0.85; else percentage = 0.80; } 
+                    else if (value <= 10000000) { if (energy === 'A') percentage = 0.80; else if (energy === 'B') percentage = 0.75; else percentage = 0.70; } 
+                    else if (value <= 20000000) { if (energy === 'A') percentage = 0.70; else if (energy === 'B') percentage = 0.65; else percentage = 0.60; } 
+                    else { if (energy === 'A') percentage = 0.60; else if (energy === 'B') percentage = 0.55; else percentage = 0.50; }
+                } else {
+                    if (value <= 1000000) { percentage = 0.90; } 
+                    else if (value <= 2000000) { if (energy === 'A') percentage = 0.70; else if (energy === 'B') percentage = 0.65; else percentage = 0.60; } 
+                    else if (value <= 5000000) { if (energy === 'A') percentage = 0.60; else if (energy === 'B') percentage = 0.55; else percentage = 0.50; } 
+                    else if (value <= 10000000) { if (energy === 'A') fixedMax = 3000000; else if (energy === 'B') fixedMax = 2750000; else fixedMax = 2500000; } 
+                    else { percentage = 0; }
+                }
+            } else {
+                if (propertyType === 'new') {
+                    if (value <= 5000000) percentage = 0.225; else if (value <= 10000000) percentage = 0.20; else if (value <= 20000000) percentage = 0.175; else percentage = 0.15;
+                    if (energy === 'B') percentage *= (21.25 / 22.5); else if (energy === 'Other') percentage *= (20 / 22.5);
+                } else {
+                    if (value <= 1000000) percentage = 0.225; else if (value <= 2000000) percentage = 0.175; else if (value <= 5000000) percentage = 0.15;
+                    else if (value <= 10000000) { if (energy === 'A') fixedMax = 750000; else if (energy === 'B') fixedMax = 687500; else fixedMax = 625000; } 
+                    else { percentage = 0; }
+                    if (fixedMax === Infinity) { if (energy === 'B') percentage *= (21.25 / 22.5); else if (energy === 'Other') percentage *= (20 / 22.5); }
+                }
+            }
+            return Math.min(value * percentage, fixedMax);
+        }
+        function displayResults(maxLoan, ltv, bsmvStatus) {
+            document.getElementById('max-loan-amount').textContent = formatCurrency(maxLoan);
+            document.getElementById('ltv-ratio').textContent = `${(ltv * 100).toFixed(2)}%`;
+            const bsmvStatusSpan = document.getElementById('bsmv-status');
+            bsmvStatusSpan.textContent = bsmvStatus;
+            bsmvStatusSpan.className = 'value';
+            bsmvStatusSpan.classList.add(bsmvStatus === 'Var' ? 'status-negative' : 'status-positive');
+            resultsDiv.classList.add('visible');
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+
+</body>
+</html>
