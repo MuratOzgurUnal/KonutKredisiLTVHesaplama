@@ -26,6 +26,7 @@
             font-family: 'Nunito Sans', sans-serif;
             background-color: var(--light-gray);
             display: flex;
+            flex-direction: column; /* YENİ: Footer'ı aşağıda tutmak için */
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -40,6 +41,7 @@
             padding: 40px;
             border-radius: var(--border-radius);
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px; /* YENİ: Footer ile araya boşluk koyar */
         }
 
         .header { text-align: center; margin-bottom: 40px; }
@@ -50,88 +52,18 @@
         .form-group label { display: block; font-weight: 700; margin-bottom: 15px; color: var(--primary-blue); font-size: 1.1rem; }
 
         .input-group { position: relative; }
-
-        /* GÜNCELLENDİ: Tutar alanı daha belirgin hale getirildi */
-        .input-group input[type="text"] {
-            width: 100%;
-            padding: 16px 20px 16px 45px; /* Dikey padding artırıldı */
-            border: 2px solid var(--border-color); /* Kenarlık kalınlaştırıldı */
-            border-radius: var(--border-radius);
-            font-size: 1.1rem; /* Font boyutu büyütüldü */
-            font-family: 'Nunito Sans', sans-serif;
-            font-weight: 600;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .input-group .currency-symbol {
-            position: absolute;
-            left: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-color-light);
-            font-weight: 700;
-        }
-        
-        /* GÜNCELLENDİ: Tutar alanına odaklanma efekti güçlendirildi */
-        .input-group input[type="text"]:focus {
-            outline: none;
-            border-color: var(--secondary-blue);
-            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.2); /* Gölge daha belirgin */
-        }
+        .input-group input[type="text"] { width: 100%; padding: 16px 20px 16px 45px; border: 2px solid var(--border-color); border-radius: var(--border-radius); font-size: 1.1rem; font-family: 'Nunito Sans', sans-serif; font-weight: 600; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+        .input-group .currency-symbol { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-color-light); font-weight: 700; }
+        .input-group input[type="text"]:focus { outline: none; border-color: var(--secondary-blue); box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.2); }
         
         .radio-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
-
-        .radio-group label {
-            background-color: var(--white-color);
-            padding: 14px;
-            border-radius: var(--border-radius);
-            border: 1px solid var(--border-color);
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.25s ease-in-out; /* Geçiş süresi ayarlandı */
-            font-weight: 600;
-            color: var(--primary-blue);
-        }
-        
+        .radio-group label { background-color: var(--white-color); padding: 14px; border-radius: var(--border-radius); border: 1px solid var(--border-color); text-align: center; cursor: pointer; transition: all 0.25s ease-in-out; font-weight: 600; color: var(--primary-blue); }
         .radio-group input[type="radio"] { display: none; }
-
-        /* GÜNCELLENDİ: Butonların üzerine gelince yukarı kalkma ve gölge efekti */
-        .radio-group label:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
-            border-color: var(--primary-blue);
-        }
+        .radio-group label:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08); border-color: var(--primary-blue); }
+        .radio-group input[type="radio"]:checked + label { background-color: var(--primary-blue); color: var(--white-color); border-color: var(--primary-blue); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(13, 99, 172, 0.3); }
         
-        /* GÜNCELLENDİ: Seçili butona derinlik veren gölge efekti */
-        .radio-group input[type="radio"]:checked + label {
-            background-color: var(--primary-blue);
-            color: var(--white-color);
-            border-color: var(--primary-blue);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(13, 99, 172, 0.3);
-        }
-        
-        /* GÜNCELLENDİ: Hesapla butonu tamamen yenilendi */
-        .submit-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(45deg, var(--secondary-blue), var(--primary-blue));
-            color: var(--white-color);
-            border: none;
-            border-radius: var(--border-radius);
-            font-size: 1.2rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.25);
-            letter-spacing: 0.5px;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.35);
-        }
+        .submit-btn { width: 100%; padding: 16px; background: linear-gradient(45deg, var(--secondary-blue), var(--primary-blue)); color: var(--white-color); border: none; border-radius: var(--border-radius); font-size: 1.2rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; margin-top: 20px; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.25); letter-spacing: 0.5px; }
+        .submit-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 123, 255, 0.35); }
         
         #results { margin-top: 30px; padding: 30px; background-color: #f7f7f9; border-radius: var(--border-radius); border: 1px solid var(--border-color); opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; display: none; }
         #results.visible { display: block; opacity: 1; transform: translateY(0); }
@@ -150,12 +82,21 @@
             .container { padding: 25px; }
             .header h1 { font-size: 1.7rem; }
         }
+
+        /* YENİ: İmza için footer stili */
+        .page-footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 0.85rem;
+            color: var(--text-color-light);
+            opacity: 0.7; /* Biraz daha soluk yapar */
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- HTML bölümü (form ve sonuçlar) aynı kalıyor, değişiklikler sadece CSS'te yapıldı -->
+        <!-- Form ve sonuçlar alanı burada -->
         <div class="header">
             <h1>Konut Kredisi Hesaplama Aracı</h1>
             <p>Güncel yönetmeliğe göre alabileceğiniz maksimum kredi tutarını öğrenin.</p>
@@ -229,8 +170,13 @@
         </div>
     </div>
 
+    <!-- YENİ: Sayfa Alt Bilgisi (Footer) -->
+    <footer class="page-footer">
+        Created by Murat Özgür Ünal
+    </footer>
+
     <script>
-        // JavaScript bölümü aynı kalıyor, değişiklikler sadece CSS'te yapıldı
+        // JavaScript bölümü aynı kalıyor
         const form = document.getElementById('loan-calculator-form');
         const resultsDiv = document.getElementById('results');
         const errorMessage = document.getElementById('error-message');
