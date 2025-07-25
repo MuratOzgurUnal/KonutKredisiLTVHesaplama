@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Konut Kredisi Hesaplama Aracı</title>
+    <title>Detaylı Konut Kredisi Hesaplama Aracı (BDDK/BSMV Uyumlu)</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap'); /* 800 eklendi */
 
         :root {
             --primary-blue: #0d63ac;
@@ -26,7 +26,7 @@
             font-family: 'Nunito Sans', sans-serif;
             background-color: var(--light-gray);
             display: flex;
-            flex-direction: column; /* YENİ: Footer'ı aşağıda tutmak için */
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -41,22 +41,39 @@
             padding: 40px;
             border-radius: var(--border-radius);
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-            margin-bottom: 20px; /* YENİ: Footer ile araya boşluk koyar */
+            margin-bottom: 20px;
         }
 
         .header { text-align: center; margin-bottom: 40px; }
-        .header h1 { color: var(--primary-blue); font-weight: 700; font-size: 2rem; margin-bottom: 10px; }
-        .header p { color: var(--text-color-light); font-size: 1rem; }
+        
+        /* --- BAŞLIK İÇİN YENİ STİL --- */
+        .header h1 {
+            font-weight: 800; /* Daha kalın bir font */
+            font-size: 2.3rem; /* Boyut artırıldı */
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, var(--secondary-blue), var(--primary-blue));
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            padding: 5px 0;
+        }
+        
+        .header p { color: var(--text-color-light); font-size: 1.1rem; }
 
         .form-group { margin-bottom: 30px; }
         .form-group label { display: block; font-weight: 700; margin-bottom: 15px; color: var(--primary-blue); font-size: 1.1rem; }
+        .form-group .description { font-size: 0.85rem; color: var(--text-color-light); margin-top: -10px; margin-bottom: 15px; line-height: 1.4; }
 
         .input-group { position: relative; }
         .input-group input[type="text"] { width: 100%; padding: 16px 20px 16px 45px; border: 2px solid var(--border-color); border-radius: var(--border-radius); font-size: 1.1rem; font-family: 'Nunito Sans', sans-serif; font-weight: 600; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
         .input-group .currency-symbol { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-color-light); font-weight: 700; }
         .input-group input[type="text"]:focus { outline: none; border-color: var(--secondary-blue); box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.2); }
         
-        .radio-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        .radio-group { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media (min-width: 500px) {
+            .radio-group { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+        }
+
         .radio-group label { background-color: var(--white-color); padding: 14px; border-radius: var(--border-radius); border: 1px solid var(--border-color); text-align: center; cursor: pointer; transition: all 0.25s ease-in-out; font-weight: 600; color: var(--primary-blue); }
         .radio-group input[type="radio"] { display: none; }
         .radio-group label:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08); border-color: var(--primary-blue); }
@@ -80,47 +97,56 @@
 
         @media (max-width: 640px) {
             .container { padding: 25px; }
-            .header h1 { font-size: 1.7rem; }
+            .header h1 { font-size: 1.9rem; }
         }
 
-        /* YENİ: İmza için footer stili */
         .page-footer {
             text-align: center;
             padding: 10px;
             font-size: 0.85rem;
             color: var(--text-color-light);
-            opacity: 0.7; /* Biraz daha soluk yapar */
+            opacity: 0.7;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- Form ve sonuçlar alanı burada -->
+        <!-- DEĞİŞTİ: Header bölümü daha dikkat çekici ve sade hale getirildi -->
         <div class="header">
             <h1>Konut Kredisi Hesaplama Aracı</h1>
-            <p>Güncel yönetmeliğe göre alabileceğiniz maksimum kredi tutarını öğrenin.</p>
+            <p>Kredi limitinizi ve koşullarınızı anında öğrenin.</p>
         </div>
 
         <form id="loan-calculator-form">
             <div class="form-group">
-                <label>Bu sizin kaçıncı eviniz olacak?</label>
+                <label>Konut Sahipliği Durumunuz</label>
+                <p class="description">
+                    Bu seçim, hem kullanabileceğiniz kredi oranını (LTV) hem de BSMV vergisi muafiyetinizi belirler.
+                    <br><i>(Hissesi %50'den az olan, köydeki veya kentsel dönüşümdeki evler sayılmaz.)</i>
+                </p>
                 <div class="radio-group">
-                    <input type="radio" id="ownership_first" name="ownership" value="first">
-                    <label for="ownership_first">İlk Evim</label>
-                    <input type="radio" id="ownership_second_plus" name="ownership" value="second_plus">
-                    <label for="ownership_second_plus">İkinci veya Sonraki</label>
+                    <input type="radio" id="ownership_none" name="ownership_status" value="none" required>
+                    <label for="ownership_none">İlk Konutum (Kimsenin Evi Yok)</label>
+                    
+                    <input type="radio" id="ownership_spouse" name="ownership_status" value="spouse_only">
+                    <label for="ownership_spouse">Sadece Eşimin/Çocuğumun Evi Var</label>
+
+                    <input type="radio" id="ownership_borrower" name="ownership_status" value="borrower_has">
+                    <label for="ownership_borrower">Benim Adıma Kayıtlı Ev Var</label>
                 </div>
             </div>
+
             <div class="form-group">
                 <label>Alınacak Konutun Türü</label>
                 <div class="radio-group">
-                    <input type="radio" id="type_new" name="property_type" value="new">
+                    <input type="radio" id="type_new" name="property_type" value="new" required>
                     <label for="type_new">Sıfır Konut (1. El)</label>
                     <input type="radio" id="type_second_hand" name="property_type" value="second_hand">
                     <label for="type_second_hand">İkinci El Konut</label>
                 </div>
             </div>
+
             <div class="form-group">
                 <label for="property-value-display">Konutun Değeri</label>
                 <div class="input-group">
@@ -129,10 +155,11 @@
                     <input type="hidden" id="property-value-hidden">
                 </div>
             </div>
+
             <div class="form-group">
                 <label>Konutun Enerji Sınıfı</label>
                 <div class="radio-group">
-                    <input type="radio" id="energy_a" name="energy_class" value="A">
+                    <input type="radio" id="energy_a" name="energy_class" value="A" required>
                     <label for="energy_a">A Sınıfı</label>
                     <input type="radio" id="energy_b" name="energy_class" value="B">
                     <label for="energy_b">B Sınıfı</label>
@@ -140,15 +167,7 @@
                     <label for="energy_other">Diğer</label>
                 </div>
             </div>
-            <div class="form-group">
-                <label>Kendinize veya eşinize ait bir ev var mı?</label>
-                <div class="radio-group">
-                    <input type="radio" id="has_house_no" name="has_house" value="no">
-                    <label for="has_house_no">Hayır, Yok</label>
-                    <input type="radio"id="has_house_yes" name="has_house" value="yes">
-                    <label for="has_house_yes">Evet, Var</label>
-                </div>
-            </div>
+            
             <button type="submit" class="submit-btn">Hesapla</button>
             <p id="error-message" class="error-message"></p>
         </form>
@@ -170,13 +189,12 @@
         </div>
     </div>
 
-    <!-- YENİ: Sayfa Alt Bilgisi (Footer) -->
     <footer class="page-footer">
         Created by Murat Özgür Ünal
     </footer>
 
     <script>
-        // JavaScript bölümü aynı kalıyor
+        // JavaScript bölümü aynı kalmıştır.
         const form = document.getElementById('loan-calculator-form');
         const resultsDiv = document.getElementById('results');
         const errorMessage = document.getElementById('error-message');
@@ -192,71 +210,94 @@
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const ownershipChoice = document.querySelector('input[name="ownership"]:checked');
+            const ownershipStatusChoice = document.querySelector('input[name="ownership_status"]:checked');
             const propertyTypeChoice = document.querySelector('input[name="property_type"]:checked');
             const propertyValue = parseFloat(propertyValueHidden.value);
             const energyClassChoice = document.querySelector('input[name="energy_class"]:checked');
-            const hasExistingHouseChoice = document.querySelector('input[name="has_house"]:checked');
 
             resultsDiv.classList.remove('visible');
             
-            if (!ownershipChoice || !propertyTypeChoice || !energyClassChoice || !hasExistingHouseChoice || isNaN(propertyValue) || propertyValue <= 0) {
+            if (!ownershipStatusChoice || !propertyTypeChoice || !energyClassChoice || isNaN(propertyValue) || propertyValue <= 0) {
                 errorMessage.textContent = 'Lütfen tüm alanları doldurun ve geçerli bir değer girin.';
                 errorMessage.style.display = 'block';
                 return;
             }
             errorMessage.style.display = 'none';
 
-            const ownership = ownershipChoice.value;
+            const ownershipStatus = ownershipStatusChoice.value;
             const propertyType = propertyTypeChoice.value;
             const energyClass = energyClassChoice.value;
-            const hasExistingHouse = hasExistingHouseChoice.value === 'yes';
 
-            const maxLoan = calculateMaxLoan(ownership, propertyType, propertyValue, energyClass);
+            let isSecondHomePurchase = false;
+            let bsmvStatus = "Yok (Muaf)";
+
+            if (ownershipStatus === 'spouse_only') {
+                isSecondHomePurchase = true;
+                bsmvStatus = "Yok (Muaf)";
+            } else if (ownershipStatus === 'borrower_has') {
+                isSecondHomePurchase = true;
+                bsmvStatus = "Var (Muaf Değil)";
+            }
+
+            const maxLoan = calculateMaxLoan(isSecondHomePurchase, propertyType, propertyValue, energyClass);
             const ltv = propertyValue > 0 ? (maxLoan / propertyValue) : 0;
-            const bsmvStatus = hasExistingHouse ? "Var" : "Yok";
-
+            
             displayResults(maxLoan, ltv, bsmvStatus);
         });
         
-        function formatCurrency(amount) { return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount); }
-        function calculateMaxLoan(ownership, propertyType, value, energy) {
-            let percentage = 0, fixedMax = Infinity;
-            if (ownership === 'first') {
-                if (propertyType === 'new') {
-                    if (value <= 5000000) { if (energy === 'A') percentage = 0.90; else if (energy === 'B') percentage = 0.85; else percentage = 0.80; } 
-                    else if (value <= 10000000) { if (energy === 'A') percentage = 0.80; else if (energy === 'B') percentage = 0.75; else percentage = 0.70; } 
-                    else if (value <= 20000000) { if (energy === 'A') percentage = 0.70; else if (energy === 'B') percentage = 0.65; else percentage = 0.60; } 
-                    else { if (energy === 'A') percentage = 0.60; else if (energy === 'B') percentage = 0.55; else percentage = 0.50; }
+        function formatCurrency(amount) { 
+            return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount); 
+        }
+
+        function calculateMaxLoan(isSecondHome, propertyType, value, energy) {
+            let percentage = 0;
+            let fixedMax = Infinity; 
+
+            if (propertyType === 'new') {
+                if (value <= 5000000) {
+                    if (energy === 'A') percentage = 0.90; else if (energy === 'B') percentage = 0.85; else percentage = 0.80;
+                } else if (value <= 10000000) {
+                    if (energy === 'A') percentage = 0.80; else if (energy === 'B') percentage = 0.75; else percentage = 0.70;
+                } else if (value <= 20000000) {
+                    if (energy === 'A') percentage = 0.70; else if (energy === 'B') percentage = 0.65; else percentage = 0.60;
                 } else {
-                    if (value <= 1000000) { percentage = 0.90; } 
-                    else if (value <= 2000000) { if (energy === 'A') percentage = 0.70; else if (energy === 'B') percentage = 0.65; else percentage = 0.60; } 
-                    else if (value <= 5000000) { if (energy === 'A') percentage = 0.60; else if (energy === 'B') percentage = 0.55; else percentage = 0.50; } 
-                    else if (value <= 10000000) { if (energy === 'A') fixedMax = 3000000; else if (energy === 'B') fixedMax = 2750000; else fixedMax = 2500000; } 
-                    else { percentage = 0; }
+                    if (energy === 'A') percentage = 0.60; else if (energy === 'B') percentage = 0.55; else percentage = 0.50;
                 }
             } else {
-                if (propertyType === 'new') {
-                    if (value <= 5000000) percentage = 0.225; else if (value <= 10000000) percentage = 0.20; else if (value <= 20000000) percentage = 0.175; else percentage = 0.15;
-                    if (energy === 'B') percentage *= (21.25 / 22.5); else if (energy === 'Other') percentage *= (20 / 22.5);
+                if (value <= 1000000) {
+                    percentage = 0.90;
+                } else if (value <= 2000000) {
+                    if (energy === 'A') percentage = 0.70; else if (energy === 'B') percentage = 0.65; else percentage = 0.60;
+                } else if (value <= 5000000) {
+                    if (energy === 'A') percentage = 0.60; else if (energy === 'B') percentage = 0.55; else percentage = 0.50;
+                } else if (value <= 10000000) {
+                    if (energy === 'A') fixedMax = 3000000; else if (energy === 'B') fixedMax = 2750000; else fixedMax = 2500000;
                 } else {
-                    if (value <= 1000000) percentage = 0.225; else if (value <= 2000000) percentage = 0.175; else if (value <= 5000000) percentage = 0.15;
-                    else if (value <= 10000000) { if (energy === 'A') fixedMax = 750000; else if (energy === 'B') fixedMax = 687500; else fixedMax = 625000; } 
-                    else { percentage = 0; }
-                    if (fixedMax === Infinity) { if (energy === 'B') percentage *= (21.25 / 22.5); else if (energy === 'Other') percentage *= (20 / 22.5); }
+                    percentage = 0;
                 }
             }
-            return Math.min(value * percentage, fixedMax);
+
+            if (isSecondHome) {
+                percentage *= 0.25;
+                if (fixedMax !== Infinity) {
+                    fixedMax *= 0.25;
+                }
+            }
+            
+            const calculatedLoanByPercentage = value * percentage;
+            return Math.min(calculatedLoanByPercentage, fixedMax);
         }
+
         function displayResults(maxLoan, ltv, bsmvStatus) {
             document.getElementById('max-loan-amount').textContent = formatCurrency(maxLoan);
             document.getElementById('ltv-ratio').textContent = `${(ltv * 100).toFixed(2)}%`;
             const bsmvStatusSpan = document.getElementById('bsmv-status');
             bsmvStatusSpan.textContent = bsmvStatus;
             bsmvStatusSpan.className = 'value';
-            bsmvStatusSpan.classList.add(bsmvStatus === 'Var' ? 'status-negative' : 'status-positive');
+            bsmvStatusSpan.classList.add(bsmvStatus.startsWith('Var') ? 'status-negative' : 'status-positive');
+            
             resultsDiv.classList.add('visible');
-            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
     </script>
 
