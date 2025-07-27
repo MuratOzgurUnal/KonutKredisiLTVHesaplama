@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detaylı Konut Kredisi Hesaplama Aracı (BDDK/BSMV Uyumlu)</title>
+    <title>Detaylı Konut Kredisi LTV Hesaplama (BDDK/BSMV Uyumlu)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap'); /* 800 eklendi */
 
@@ -112,9 +112,8 @@
 <body>
 
     <div class="container">
-        <!-- DEĞİŞTİ: Header bölümü daha dikkat çekici ve sade hale getirildi -->
         <div class="header">
-            <h1>Konut Kredisi Hesaplama Aracı</h1>
+            <h1>Konut Kredisi LTV Hesaplama</h1>
             <p>Kredi limitinizi ve koşullarınızı anında öğrenin.</p>
         </div>
 
@@ -194,33 +193,38 @@
     </footer>
 
     <script>
-        // JavaScript bölümü aynı kalmıştır.
+        // --- DEĞİŞTİRİLEN JAVASCRIPT BÖLÜMÜ ---
+
         const form = document.getElementById('loan-calculator-form');
         const resultsDiv = document.getElementById('results');
         const errorMessage = document.getElementById('error-message');
         const propertyValueDisplay = document.getElementById('property-value-display');
         const propertyValueHidden = document.getElementById('property-value-hidden');
 
+        let hasCalculatedOnce = false; // İlk hesaplamanın yapılıp yapılmadığını kontrol eden bayrak.
+
+        // Para birimi formatlama (kullanıcı girdikçe)
         propertyValueDisplay.addEventListener('input', (e) => {
             const rawValue = e.target.value.replace(/\D/g, '');
             propertyValueHidden.value = rawValue;
             e.target.value = rawValue ? parseInt(rawValue, 10).toLocaleString('tr-TR') : '';
         });
 
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
+        // Tüm hesaplama ve sonuç gösterme mantığını içeren ana fonksiyon
+        function calculateAndDisplay() {
             const ownershipStatusChoice = document.querySelector('input[name="ownership_status"]:checked');
             const propertyTypeChoice = document.querySelector('input[name="property_type"]:checked');
             const propertyValue = parseFloat(propertyValueHidden.value);
             const energyClassChoice = document.querySelector('input[name="energy_class"]:checked');
 
-            resultsDiv.classList.remove('visible');
+            resultsDiv.classList.remove('visible'); // Önceki sonuçları gizle
             
             if (!ownershipStatusChoice || !propertyTypeChoice || !energyClassChoice || isNaN(propertyValue) || propertyValue <= 0) {
-                errorMessage.textContent = 'Lütfen tüm alanları doldurun ve geçerli bir değer girin.';
-                errorMessage.style.display = 'block';
-                return;
+                if (hasCalculatedOnce) { // Sadece ilk hesaplamadan sonra hata mesajı göster
+                    errorMessage.textContent = 'Lütfen tüm alanları doldurun ve geçerli bir değer girin.';
+                    errorMessage.style.display = 'block';
+                }
+                return false; // Hesaplama başarısız
             }
             errorMessage.style.display = 'none';
 
@@ -243,8 +247,10 @@
             const ltv = propertyValue > 0 ? (maxLoan / propertyValue) : 0;
             
             displayResults(maxLoan, ltv, bsmvStatus);
-        });
+            return true; // Hesaplama başarılı
+        }
         
+        // Yardımcı fonksiyonlar (değişiklik yok)
         function formatCurrency(amount) { 
             return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount); 
         }
@@ -297,8 +303,32 @@
             bsmvStatusSpan.classList.add(bsmvStatus.startsWith('Var') ? 'status-negative' : 'status-positive');
             
             resultsDiv.classList.add('visible');
-            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
+
+        // --- YENİ OLAY DİNLEYİCİLERİ ---
+
+        // "Hesapla" butonuna basıldığında
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const calculationSuccessful = calculateAndDisplay();
+            if (calculationSuccessful) {
+                hasCalculatedOnce = true; // Otomatik güncellemeyi etkinleştir
+                // Sonuçları görmek için ekrana kaydır
+                resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }
+        });
+        
+        // Formdaki tüm radio ve text input'larını izle
+        const allInputs = document.querySelectorAll('input[type="radio"], input[type="text"]');
+        allInputs.forEach(input => {
+            // Text input'u için anında (input), radio butonlar için değişimde (change) tetikle
+            const eventType = input.type === 'text' ? 'input' : 'change';
+            input.addEventListener(eventType, () => {
+                if (hasCalculatedOnce) { // Sadece ilk hesaplamadan sonra otomatik çalış
+                    calculateAndDisplay();
+                }
+            });
+        });
     </script>
 
 </body>
