@@ -193,7 +193,7 @@
     </footer>
 
     <script>
-        // --- DEĞİŞTİRİLEN JAVASCRIPT BÖLÜMÜ ---
+        // --- DÜZELTİLMİŞ JAVASCRIPT BÖLÜMÜ ---
 
         const form = document.getElementById('loan-calculator-form');
         const resultsDiv = document.getElementById('results');
@@ -201,7 +201,7 @@
         const propertyValueDisplay = document.getElementById('property-value-display');
         const propertyValueHidden = document.getElementById('property-value-hidden');
 
-        let hasCalculatedOnce = false; // İlk hesaplamanın yapılıp yapılmadığını kontrol eden bayrak.
+        let hasCalculatedOnce = false;
 
         // Para birimi formatlama (kullanıcı girdikçe)
         propertyValueDisplay.addEventListener('input', (e) => {
@@ -217,14 +217,14 @@
             const propertyValue = parseFloat(propertyValueHidden.value);
             const energyClassChoice = document.querySelector('input[name="energy_class"]:checked');
 
-            resultsDiv.classList.remove('visible'); // Önceki sonuçları gizle
+            resultsDiv.classList.remove('visible');
             
             if (!ownershipStatusChoice || !propertyTypeChoice || !energyClassChoice || isNaN(propertyValue) || propertyValue <= 0) {
-                if (hasCalculatedOnce) { // Sadece ilk hesaplamadan sonra hata mesajı göster
+                if (hasCalculatedOnce) {
                     errorMessage.textContent = 'Lütfen tüm alanları doldurun ve geçerli bir değer girin.';
                     errorMessage.style.display = 'block';
                 }
-                return false; // Hesaplama başarısız
+                return false;
             }
             errorMessage.style.display = 'none';
 
@@ -247,51 +247,111 @@
             const ltv = propertyValue > 0 ? (maxLoan / propertyValue) : 0;
             
             displayResults(maxLoan, ltv, bsmvStatus);
-            return true; // Hesaplama başarılı
+            return true;
         }
         
-        // Yardımcı fonksiyonlar (değişiklik yok)
+        // Yardımcı fonksiyonlar
         function formatCurrency(amount) { 
             return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount); 
         }
 
+        // DÜZELTİLMİŞ HESAPLAMA FONKSİYONU - Görseldeki kurallara göre
         function calculateMaxLoan(isSecondHome, propertyType, value, energy) {
             let percentage = 0;
-            let fixedMax = Infinity; 
+            let fixedMax = Infinity;
 
             if (propertyType === 'new') {
-                if (value <= 5000000) {
-                    if (energy === 'A') percentage = 0.90; else if (energy === 'B') percentage = 0.85; else percentage = 0.80;
-                } else if (value <= 10000000) {
-                    if (energy === 'A') percentage = 0.80; else if (energy === 'B') percentage = 0.75; else percentage = 0.70;
-                } else if (value <= 20000000) {
-                    if (energy === 'A') percentage = 0.70; else if (energy === 'B') percentage = 0.65; else percentage = 0.60;
+                // BİRİNCİ EL (YENİ) KONUT HESAPLAMALARI
+                if (!isSecondHome) {
+                    // Birinci el - İlk konut alımı (normal LTV)
+                    if (value <= 5000000) {
+                        if (energy === 'A') percentage = 0.90;
+                        else if (energy === 'B') percentage = 0.85;
+                        else percentage = 0.80;
+                    } else if (value <= 10000000) {
+                        if (energy === 'A') percentage = 0.80;
+                        else if (energy === 'B') percentage = 0.75;
+                        else percentage = 0.70;
+                    } else if (value <= 20000000) {
+                        if (energy === 'A') percentage = 0.70;
+                        else if (energy === 'B') percentage = 0.65;
+                        else percentage = 0.60;
+                    } else { // 20 milyon TL üzeri
+                        if (energy === 'A') percentage = 0.60;
+                        else if (energy === 'B') percentage = 0.55;
+                        else percentage = 0.50;
+                    }
                 } else {
-                    if (energy === 'A') percentage = 0.60; else if (energy === 'B') percentage = 0.55; else percentage = 0.50;
+                    // Birinci el - İkinci veya sonraki konut alımı (%25 azaltılmış)
+                    if (value <= 5000000) {
+                        if (energy === 'A') percentage = 0.225; // %90'ın %25'i
+                        else if (energy === 'B') percentage = 0.2125; // %85'in %25'i
+                        else percentage = 0.20; // %80'in %25'i
+                    } else if (value <= 10000000) {
+                        if (energy === 'A') percentage = 0.20; // %80'in %25'i
+                        else if (energy === 'B') percentage = 0.1875; // %75'in %25'i
+                        else percentage = 0.175; // %70'in %25'i
+                    } else if (value <= 20000000) {
+                        if (energy === 'A') percentage = 0.175; // %70'in %25'i
+                        else if (energy === 'B') percentage = 0.1625; // %65'in %25'i
+                        else percentage = 0.15; // %60'ın %25'i
+                    } else { // 20 milyon TL üzeri
+                        if (energy === 'A') percentage = 0.15; // %60'ın %25'i
+                        else if (energy === 'B') percentage = 0.1375; // %55'in %25'i
+                        else percentage = 0.125; // %50'nin %25'i
+                    }
                 }
             } else {
-                if (value <= 1000000) {
-                    percentage = 0.90;
-                } else if (value <= 2000000) {
-                    if (energy === 'A') percentage = 0.70; else if (energy === 'B') percentage = 0.65; else percentage = 0.60;
-                } else if (value <= 5000000) {
-                    if (energy === 'A') percentage = 0.60; else if (energy === 'B') percentage = 0.55; else percentage = 0.50;
-                } else if (value <= 10000000) {
-                    if (energy === 'A') fixedMax = 3000000; else if (energy === 'B') fixedMax = 2750000; else fixedMax = 2500000;
+                // İKİNCİ EL KONUT HESAPLAMALARI
+                if (!isSecondHome) {
+                    // İkinci el - İlk konut alımı (normal LTV)
+                    if (value <= 1000000) {
+                        percentage = 0.90; // Enerji sınıfı fark etmez
+                    } else if (value <= 2000000) {
+                        if (energy === 'A') percentage = 0.70;
+                        else if (energy === 'B') percentage = 0.65;
+                        else percentage = 0.60;
+                    } else if (value <= 5000000) {
+                        if (energy === 'A') percentage = 0.60;
+                        else if (energy === 'B') percentage = 0.55;
+                        else percentage = 0.50;
+                    } else if (value <= 10000000) {
+                        // Azami tutar uygulaması
+                        if (energy === 'A') fixedMax = 3000000;
+                        else if (energy === 'B') fixedMax = 2750000;
+                        else fixedMax = 2500000;
+                    } else { // 10 milyon TL üzeri
+                        percentage = 0; // Kredi verilmez
+                    }
                 } else {
-                    percentage = 0;
-                }
-            }
-
-            if (isSecondHome) {
-                percentage *= 0.25;
-                if (fixedMax !== Infinity) {
-                    fixedMax *= 0.25;
+                    // İkinci el - İkinci veya sonraki konut alımı (%25 azaltılmış)
+                    if (value <= 1000000) {
+                        percentage = 0.225; // %90'ın %25'i
+                    } else if (value <= 2000000) {
+                        if (energy === 'A') percentage = 0.175; // %70'in %25'i
+                        else if (energy === 'B') percentage = 0.1625; // %65'in %25'i
+                        else percentage = 0.15; // %60'ın %25'i
+                    } else if (value <= 5000000) {
+                        if (energy === 'A') percentage = 0.15; // %60'ın %25'i
+                        else if (energy === 'B') percentage = 0.1375; // %55'in %25'i
+                        else percentage = 0.125; // %50'nin %25'i
+                    } else if (value <= 10000000) {
+                        // Azami tutar uygulaması (%25'i)
+                        if (energy === 'A') fixedMax = 750000; // 3 milyon'un %25'i
+                        else if (energy === 'B') fixedMax = 687500; // 2.75 milyon'un %25'i
+                        else fixedMax = 625000; // 2.5 milyon'un %25'i
+                    } else { // 10 milyon TL üzeri
+                        percentage = 0; // Kredi verilmez
+                    }
                 }
             }
             
-            const calculatedLoanByPercentage = value * percentage;
-            return Math.min(calculatedLoanByPercentage, fixedMax);
+            // Hesaplama
+            if (fixedMax !== Infinity) {
+                return fixedMax;
+            } else {
+                return value * percentage;
+            }
         }
 
         function displayResults(maxLoan, ltv, bsmvStatus) {
@@ -305,15 +365,12 @@
             resultsDiv.classList.add('visible');
         }
 
-        // --- YENİ OLAY DİNLEYİCİLERİ ---
-
-        // "Hesapla" butonuna basıldığında
+        // Olay dinleyicileri
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             const calculationSuccessful = calculateAndDisplay();
             if (calculationSuccessful) {
-                hasCalculatedOnce = true; // Otomatik güncellemeyi etkinleştir
-                // Sonuçları görmek için ekrana kaydır
+                hasCalculatedOnce = true;
                 resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
             }
         });
@@ -321,10 +378,9 @@
         // Formdaki tüm radio ve text input'larını izle
         const allInputs = document.querySelectorAll('input[type="radio"], input[type="text"]');
         allInputs.forEach(input => {
-            // Text input'u için anında (input), radio butonlar için değişimde (change) tetikle
             const eventType = input.type === 'text' ? 'input' : 'change';
             input.addEventListener(eventType, () => {
-                if (hasCalculatedOnce) { // Sadece ilk hesaplamadan sonra otomatik çalış
+                if (hasCalculatedOnce) {
                     calculateAndDisplay();
                 }
             });
